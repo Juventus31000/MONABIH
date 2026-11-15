@@ -167,8 +167,33 @@ async function ask() {
       throw new Error(data.error || "Erreur serveur");
     }
 
-    box.textContent = data.answer || "لم يصل جواب من الذكاء الاصطناعي.";
+    box.innerHTML = "";
 
+const answer = document.createElement("div");
+answer.textContent = data.answer || "لم يصل جواب من الذكاء الاصطناعي.";
+answer.style.whiteSpace = "pre-wrap";
+box.appendChild(answer);
+
+if (data.sources && data.sources.length > 0) {
+  const title = document.createElement("h3");
+  title.textContent = "المصادر التي تم العثور عليها:";
+  box.appendChild(title);
+
+  data.sources.forEach(source => {
+    const link = document.createElement("a");
+    link.textContent = source.title || "فتح المصدر";
+    link.href = source.url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.style.display = "block";
+    link.style.margin = "8px 0";
+    box.appendChild(link);
+  });
+} else {
+  const note = document.createElement("p");
+  note.textContent = "لم يتم العثور على روابط مصادر.";
+  box.appendChild(note);
+}
   } catch (error) {
     box.textContent =
       "تعذر الاتصال بالذكاء الاصطناعي. حاول مرة أخرى.\n" +
