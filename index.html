@@ -126,24 +126,57 @@ footer{
 </footer>
 
 <script>
-function ask(){
- const q=document.getElementById("question").value.trim();
- const lang=document.getElementById("lang").value;
- const box=document.getElementById("result");
+<script>
+async function ask() {
+  const q = document.getElementById("question").value.trim();
+  const lang = document.getElementById("lang").value;
+  const box = document.getElementById("result");
+  const button = document.querySelector("button");
 
- if(!q){
-  alert("اكتب سؤالك أولاً");
-  return;
- }
+  if (!q) {
+    alert("اكتب سؤالك أولاً");
+    return;
+  }
 
- let msg="شكراً على سؤالك. هذه نسخة تجريبية من MONABIH AI. خدمة الذكاء الاصطناعي والتحقق من المصادر الرسمية لم يتم ربطها بعد. سنعمل على تفعيلها في المرحلة القادمة.";
+  box.style.display = "block";
+  box.textContent = "MONABIH يفكر... انتظر قليلاً";
+  button.disabled = true;
 
- if(lang==="fr"){
-  msg="Merci pour votre question. MONABIH AI est actuellement en version prototype. Le service d'intelligence artificielle et la vérification des sources officielles seront intégrés dans une prochaine étape.";
- }
+  const languageNames = {
+    ar: "أجب باللغة العربية الفصحى.",
+    dz: "أجب بالدارجة الجزائرية.",
+    fr: "Répondez en français."
+  };
 
- box.style.display="block";
- box.textContent=msg;
+  try {
+    const response = await fetch(
+      "https://monabih-api.momo-momo31000.workers.dev",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          question: languageNames[lang] + "\n\n" + q
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Erreur serveur");
+    }
+
+    box.textContent = data.answer || "لم يصل جواب من الذكاء الاصطناعي.";
+
+  } catch (error) {
+    box.textContent =
+      "تعذر الاتصال بالذكاء الاصطناعي. حاول مرة أخرى.\n" +
+      error.message;
+  } finally {
+    button.disabled = false;
+  }
 }
 </script>
 
